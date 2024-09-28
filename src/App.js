@@ -27,9 +27,9 @@ const App = () => {
           <Routes>
             <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn}/>} />
             <Route path="/home" element={isLoggedIn? <Home /> : <Navigate to="/login" />} />
-            <Route path="*" element={<Navigate to="/login" />} /> {/* 默认重定向 */}
             <Route path="/about" element={<About />} />
             <Route path="/payment" element={<Payment />} />
+            <Route path="*" element={<Navigate to="/login" />} /> {/* 默认重定向 */}
 
           </Routes>
         </div>

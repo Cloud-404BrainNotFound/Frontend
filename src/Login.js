@@ -20,11 +20,12 @@ const Login = ({ setIsLoggedIn}) => {
       (user) => user.username === username && user.password === password
     );
     if (user) {
-      //alert('Login Successful: Welcome, ' + username + '!');
       setIsLoggedIn(true);
+      alert('Login Successful: Welcome, ' + username + '!');
       navigate('/home');
     } else {
       setError('Login Failed: Invalid username or password.');
+      alert('Invalid username or password. Please try again.');
     }
   };
 

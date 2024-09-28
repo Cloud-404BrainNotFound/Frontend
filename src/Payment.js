@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 
+
 const Payment = () => {
+  const info = [{cardNumber: '1234567812345678', expiryDate: '0128', cvc: '123'}];
+
   const [cardNumber, setCardNumber] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [cvc, setCvc] = useState('');
@@ -9,7 +12,10 @@ const Payment = () => {
   const handlePayment = (e) => {
     e.preventDefault();
 
-    if (cardNumber && expiryDate && cvc) {
+    const information = info.find(
+        (information) => info.cardNumber === cardNumber && info.expiryDate === expiryDate && info.cvc === cvc
+    );
+    if (information) {
       setPaymentStatus('Payment Successful');
       alert('Payment Successful!');
     } else {
