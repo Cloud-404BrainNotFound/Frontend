@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
+const Login = ({ setIsLoggedIn}) => {
   const users = [
     { username: 'user1', password: 'password1' },
     { username: 'user2', password: 'password2' },
@@ -9,15 +10,21 @@ const Login = () => {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handleLogin = () => {
+  const handleLogin = (e) => {
+    e.preventDefault();
+
     const user = users.find(
       (user) => user.username === username && user.password === password
     );
     if (user) {
-      alert('Login Successful: Welcome, ' + username + '!');
+      //alert('Login Successful: Welcome, ' + username + '!');
+      setIsLoggedIn(true);
+      navigate('/home');
     } else {
-      alert('Login Failed: Invalid username or password.');
+      setError('Login Failed: Invalid username or password.');
     }
   };
 

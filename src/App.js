@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import Home from './components/Home';
 import About from './components/About';
 import Login from './Login';
@@ -7,6 +8,7 @@ import Payment from './Payment';
 
 
 const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   
   return (
       <Router>
@@ -23,9 +25,10 @@ const App = () => {
           </nav>
 
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn}/>} />
+            <Route path="/home" element={isLoggedIn? <Home /> : <Navigate to="/login" />} />
+            <Route path="*" element={<Navigate to="/login" />} /> {/* 默认重定向 */}
             <Route path="/about" element={<About />} />
-            <Route path="/login" element={<Login />} />
             <Route path="/payment" element={<Payment />} />
 
           </Routes>
