@@ -2,6 +2,15 @@ import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 const Payment = () => {
+  const info = [
+    {
+      cardNumber: '1234567812345678', 
+      expiryMonth: '01' , 
+      expiryYear: '28',  
+      cvc: '123'
+    }
+  ];
+  
   const location = useLocation();
   const {
     sport,
@@ -32,7 +41,17 @@ const Payment = () => {
   const handlePayment = (e) => {
     e.preventDefault();
 
-    if (cardNumber && expiryMonth && expiryYear && cvc) {
+    
+
+    const information = info.find(
+      (information) => 
+        information.cardNumber === cardNumber.replace(/\s+/g, '') && // Delete spaces
+        information.expiryMonth === expiryMonth && 
+        information.expiryYear === expiryYear.slice(-2) && // Last two digits
+        information.cvc === cvc
+    );
+
+    if (information) {
       setPaymentStatus('Payment Successful');
       alert('Payment Successful!');
     } else {
