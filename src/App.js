@@ -5,7 +5,7 @@ import Home from './components/Home';
 import About from './components/About';
 import Login from './Login';
 import Payment from './Payment';
-import PaymentSummary from './PaymentSummary'; // Import your summary component
+import PaymentSummary from './PaymentSummary'; 
 import StringingOrder from './StringingOrder';
 
 
