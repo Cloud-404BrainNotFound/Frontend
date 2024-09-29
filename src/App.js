@@ -3,10 +3,11 @@ import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
 import Home from './components/Home';
 import About from './components/About';
-import Login from './Login';
+import Login from './components/Login';
+
 import Payment from './Payment';
-import PaymentSummary from './PaymentSummary'; 
-import StringingOrder from './StringingOrder';
+import PaymentSummary from './components/PaymentSummary'; 
+import StringingOrder from './components/StringingOrder';
 
 
 const App = () => {
