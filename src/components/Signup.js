@@ -48,7 +48,7 @@ const Signup = () => {
             setError({username: '', email: '', password: '', confirmPassword: ''});
 
         try{
-            const response = await axios.post('http://localhost:8000/add_user', {
+            await axios.post('http://localhost:8000/users/signup', {
                 username,
                 email,
                 password,

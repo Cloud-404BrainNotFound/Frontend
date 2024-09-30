@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
-const Login = ({ setIsLoggedIn}) => {
-  const users = [
-    { email: 'user1@example.com', password: 'password1' },
-    { email: 'user2@example.com', password: 'password2' },
-    { email: 'admin@example.com', password: 'admin123' },
-  ];
-
+const Login = ({ setIsLoggedIn }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -18,15 +12,7 @@ const Login = ({ setIsLoggedIn}) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
-  
-  // Email validation
-  // Password validation
-  // RememberMe validation
-  // Check if the user exists in the list
-  // Set logged-in state in the parent component
-  // Redirect to the home page on successful login
-
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     let emailError = '', 
         passwordError = '';
@@ -41,18 +27,33 @@ const Login = ({ setIsLoggedIn}) => {
       localStorage.setItem("email", email);
     }
 
-    if (emailError || passwordError){
-      setError({email: emailError, password: passwordError });
-    }else{
-      const user = users.find(
-        (user) => user.email === email && user.password === password
-      );
-      if (user) {
+    if (emailError || passwordError) {
+      setError({ email: emailError, password: passwordError });
+    } else {
+      try {
+        const response = await fetch('http://localhost:8000/users/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Login failed');
+        }
+
+        const data = await response.json(); // Get the response data
         setIsLoggedIn(true);
-        alert(`Welcome back, ${email}!`);
+        alert(`Welcome back, ${data.username || email}!`); // Assuming the response has username
+        localStorage.setItem('token', data.token); // Save the token if returned
         navigate('/home');
-      } else {
-        setError({ email: '', password: 'Invalid email or password.' });
+      } catch (error) {
+        setError({ email: '', password: error.message });
         alert('Invalid username or password. Please try again.');
       }
     }
@@ -62,6 +63,7 @@ const Login = ({ setIsLoggedIn}) => {
     <div className="min-h-screen bg-neutral-100 flex items-center justify-center">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-3xl font-bold mb-6 text-center text-primary-800">Login</h2>
+        
         {/* Email Field */}
         <div className="mb-4">
           <label className="block text-primary-700 text-sm font-semibold mb-2">Email</label>
@@ -74,11 +76,12 @@ const Login = ({ setIsLoggedIn}) => {
           />
           {error.email && <p className="text-red-500 text-sm mt-1">{error.email}</p>}
         </div>
+
         {/* Password Field */}
         <div className="mb-6">
           <div className="flex justify-between items-center"> 
             <label className="block text-primary-700 text-sm font-semibold mb-2">Password</label>
-            <Link to="forgotpassword" className="text-black text-sm underline font-bold">Forgot your password?</Link>
+            <Link to="/forgotpassword" className="text-black text-sm underline font-bold">Forgot your password?</Link>
           </div>
           <input
             type="password"
@@ -89,22 +92,25 @@ const Login = ({ setIsLoggedIn}) => {
           />
           {error.password && <p className="text-red-500 text-sm mt-1">{error.password}</p>}
         </div>
-        {/* Remember Field */}
+
+        {/* Remember Me Field */}
         <div className='flex justify-between items-center mb-4'>
           <div>
             <input
-              type ="checkbox"
+              type="checkbox"
               checked={rememberMe}
-              onChange={(e) => setRememberMe(!rememberMe)}
+              onChange={() => setRememberMe(!rememberMe)}
             />
             <label className="text-primary-700 ml-2">Remember me</label>
           </div>
         </div>
-        {/* Login Field */}
+
+        {/* Login Button */}
         <button onClick={handleLogin} className="btn btn-primary w-full">
           Login
         </button>
-        {/* Signup Field */}
+
+        {/* Signup Link */}
         <p className="text-primary-700 text-center mt-4">
           Don't have an account?{' '}
           <Link to="/signup" className="text-blue-500 underline">Sign up</Link>
@@ -113,7 +119,5 @@ const Login = ({ setIsLoggedIn}) => {
     </div>
   );
 };
-
-
 
 export default Login;
