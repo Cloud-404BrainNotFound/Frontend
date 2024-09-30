@@ -21,6 +21,7 @@ const Login = ({ setIsLoggedIn}) => {
   
   // Email validation
   // Password validation
+  // RememberMe validation
   // Check if the user exists in the list
   // Set logged-in state in the parent component
   // Redirect to the home page on successful login
@@ -36,6 +37,10 @@ const Login = ({ setIsLoggedIn}) => {
     if (password.length < 6) {
       passwordError = 'Password must be at least 6 characters long.';
     }
+    if (rememberMe) {
+      localStorage.setItem("email", email);
+    }
+
     if (emailError || passwordError){
       setError({email: emailError, password: passwordError });
     }else{

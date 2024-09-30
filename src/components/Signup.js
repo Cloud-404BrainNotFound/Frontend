@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
 const Signup = () => {
@@ -18,9 +19,10 @@ const Signup = () => {
     // Email validation 
     // Password validation 
     // Password confirmation
+    // Make a POST request to your FastAPI backend
     // Redirect to the login page on successful signup
 
-    const handleSignup = (e) => {
+    const handleSignup = async(e) => {
         e.preventDefault();
         let usernameError = '',
             emailError = '', 
@@ -44,9 +46,26 @@ const Signup = () => {
             setError({username: usernameError, email: emailError, password: passwordError, confirmPassword: confirmPasswordError});
           }else{
             setError({username: '', email: '', password: '', confirmPassword: ''});
+
+        try{
+            const response = await axios.post('http://localhost:8000/add_user', {
+                username,
+                email,
+                password,
+                role: 'customer'
+            });
             alert('Signup successful! Please Sign in.');
             navigate('/login');
-          }
+
+        } catch (err) {
+            console.error(err);
+            if (err.response && err.response.data.detail){
+                setError({ ...error, email: err.response.data.detail });
+            } else {
+                setError({ ...error, email: 'Signup failed. Please try again.' });
+            }
+        }    
+      }
     };
 
     return (
