@@ -31,15 +31,16 @@ const Login = ({ setIsLoggedIn }) => {
       setError({ email: emailError, password: passwordError });
     } else {
       try {
+        const formData = new URLSearchParams();  // needs to be in form object
+        formData.append('email', email);
+        formData.append('password', password);
+
         const response = await fetch('http://localhost:8000/users/login', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
           },
-          body: JSON.stringify({
-            email: email,
-            password: password,
-          }),
+          body: formData.toString(), // Convert to string for URL encoding
         });
 
         if (!response.ok) {
@@ -47,10 +48,9 @@ const Login = ({ setIsLoggedIn }) => {
           throw new Error(errorData.detail || 'Login failed');
         }
 
-        const data = await response.json(); // Get the response data
+        const data = await response.json();
         setIsLoggedIn(true);
-        alert(`Welcome back, ${data.username || email}!`); // Assuming the response has username
-        localStorage.setItem('token', data.token); // Save the token if returned
+        alert(`Welcome back, ${data.email}!`);
         navigate('/home');
       } catch (error) {
         setError({ email: '', password: error.message });
