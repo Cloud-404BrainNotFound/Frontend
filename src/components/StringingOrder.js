@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const StringingOrder = () => {
+
   const [sport, setSport] = useState('');
   const [racketModel, setRacketModel] = useState('');
   const [string, setString] = useState('');
@@ -12,6 +14,7 @@ const StringingOrder = () => {
   const [pickupDate, setPickupDate] = useState(null);
 
   const navigate = useNavigate();
+
 
   const sportsOptions = [
     {
@@ -64,16 +67,18 @@ const StringingOrder = () => {
     },
   ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
+
     const selectedString = sportsOptions
       .find(s => s.name === sport)
       ?.strings.find(s => s.name === string);
       
     const selectedStringPrice = selectedString ? selectedString.price : 0;
 
-    navigate('/payment-summary', {
-      state: {
+    //Send the order data to the backend 
+    try{
+      const response = await axios.post('http://localhost:8000/create_order', {
         sport,
         racketModel,
         string,
@@ -81,8 +86,27 @@ const StringingOrder = () => {
         notes,
         pickupDate,
         selectedStringPrice,
-      },
-    });
+      });
+
+      if (response.status == 200){
+        navigate('/payment-summary', {
+          state: {
+            sport,
+            racketModel,
+            string,
+            tension,
+            notes,
+            pickupDate,
+            selectedStringPrice,
+          },
+        });
+      } else {
+        alert('Error submitting order. Please try again.');
+      }
+    } catch (err){
+      alert('An error occurred while processing your order.');
+    }
+    
   };
 
   return (

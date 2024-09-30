@@ -41,8 +41,6 @@ const Payment = () => {
   const handlePayment = (e) => {
     e.preventDefault();
 
-    
-
     const information = info.find(
       (information) => 
         information.cardNumber === cardNumber.replace(/\s+/g, '') && // Delete spaces
