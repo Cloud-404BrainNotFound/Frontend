@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Login = ({ setIsLoggedIn}) => {
   const users = [
@@ -27,7 +27,8 @@ const Login = ({ setIsLoggedIn}) => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    let emailError = '', passwordError = '';
+    let emailError = '', 
+        passwordError = '';
 
     if (!validateEmail(email)) {
       emailError = 'Please enter a valid email address.';
@@ -72,7 +73,7 @@ const Login = ({ setIsLoggedIn}) => {
         <div className="mb-6">
           <div className="flex justify-between items-center"> 
             <label className="block text-primary-700 text-sm font-semibold mb-2">Password</label>
-            <a href="#" className="text-black-600 text-sm underline font-bold">Forgot your password?</a>
+            <Link to="forgotpassword" className="text-black text-sm underline font-bold">Forgot your password?</Link>
           </div>
           <input
             type="password"
@@ -101,9 +102,8 @@ const Login = ({ setIsLoggedIn}) => {
         {/* Signup Field */}
         <p className="text-primary-700 text-center mt-4">
           Don't have an account?{' '}
-          <a href="/signup" className="text-blue-500 underline">Sign up</a>
+          <Link to="/signup" className="text-blue-500 underline">Sign up</Link>
         </p>
-
       </div>
     </div>
   );

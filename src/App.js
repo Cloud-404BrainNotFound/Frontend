@@ -4,6 +4,7 @@ import { Navigate } from 'react-router-dom';
 import Home from './components/Home';
 import About from './components/About';
 import Login from './components/Login';
+import Signup from './components/Signup';
 
 import Payment from './Payment';
 import PaymentSummary from './components/PaymentSummary'; 
@@ -29,6 +30,7 @@ const App = () => {
 
           <Routes>
             <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn}/>} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/home" element={isLoggedIn? <Home /> : <Navigate to="/login" />} />
             <Route path="/about" element={<About />} />
             <Route path="/payment" element={<Payment />} />
