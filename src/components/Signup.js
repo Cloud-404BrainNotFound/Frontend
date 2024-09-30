@@ -19,7 +19,7 @@ const Signup = () => {
     // Email validation 
     // Password validation 
     // Password confirmation
-    // Make a POST request to your FastAPI backend
+    // Make a POST request to the FastAPI backend
     // Redirect to the login page on successful signup
 
     const handleSignup = async(e) => {
