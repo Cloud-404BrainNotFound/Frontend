@@ -105,7 +105,7 @@ const StringingOrder = () => {
       });
   
       if (response.status === 200) {
-        navigate('/payment', {
+        navigate('/payment-summary', {
           state: {
             orderData: {
               sport,
