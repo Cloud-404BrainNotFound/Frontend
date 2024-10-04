@@ -76,30 +76,6 @@ const Payment = () => {
     setCvc(value);
   };
 
-  const handlePayment = async(e) => {
-    e.preventDefault();
-
-    const information = info.find(
-      (information) => 
-        information.cardNumber === cardNumber.replace(/\s+/g, '') && // Remove spaces
-        information.expiryMonth === expiryMonth && 
-        information.expiryYear === expiryYear.slice(-2) && // Last two digits
-        information.cvc === cvc
-    );
-
-    if (information) {
-      setPaymentStatus('Payment Successful');
-      alert('Payment Successful!');
-    } else {
-      setPaymentStatus('Payment Failed');
-      alert('Payment Failed: Please fill all fields correctly.');
-    }
-
-    const 
-  };
-
-
-
   return (
     <div className="min-h-screen bg-neutral-100 flex items-start justify-center pt-8">
       <div className="flex w-full max-w-5xl bg-white rounded-lg shadow-lg">
