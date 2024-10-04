@@ -1,26 +1,42 @@
 import React, { useState } from 'react';
 
-
 const Payment = () => {
-  const info = [{cardNumber: '1234567812345678', expiryDate: '0128', cvc: '123'}];
-
   const [cardNumber, setCardNumber] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
+  const [expiryMonth, setExpiryMonth] = useState('');
+  const [expiryYear, setExpiryYear] = useState('');
   const [cvc, setCvc] = useState('');
   const [paymentStatus, setPaymentStatus] = useState('');
 
-  const handlePayment = (e) => {
+  const handlePayment = async (e) => {
     e.preventDefault();
 
-    const information = info.find(
-        (information) => info.cardNumber === cardNumber && info.expiryDate === expiryDate && info.cvc === cvc
-    );
-    if (information) {
+    const paymentData = {
+      card_number: cardNumber,
+      expiry_month: expiryMonth,
+      expiry_year: expiryYear,  
+      cvc: cvc,
+    };
+
+    console.log('Payment Data:', paymentData); 
+    try {
+      const response = await fetch('http://localhost:8000/payments/add_payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(paymentData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Payment failed. Please check your details.');
+      }
+
+      const data = await response.json();
       setPaymentStatus('Payment Successful');
-      alert('Payment Successful!');
-    } else {
+      alert(`Payment Successful! Payment ID: ${data.payment_id}`);
+    } catch (error) {
       setPaymentStatus('Payment Failed');
-      alert('Payment Failed: Please fill all fields correctly.');
+      alert(error.message);
     }
   };
 
@@ -33,20 +49,31 @@ const Payment = () => {
             <label className="block text-primary-700 text-sm font-semibold mb-2">Card Number</label>
             <input
               type="text"
-              placeholder="1234 5678 1234 5678"
+              placeholder="1234567812345678"
               value={cardNumber}
-              onChange={(e) => setCardNumber(e.target.value)}
+              onChange={(e) => setCardNumber(e.target.value.replace(/\s+/g, ''))} // Remove spaces
               className="input input-bordered input-primary w-full"
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-primary-700 text-sm font-semibold mb-2">Expiry Date</label>
+            <label className="block text-primary-700 text-sm font-semibold mb-2">Expiry Month</label>
             <input
               type="text"
-              placeholder="MM/YY"
-              value={expiryDate}
-              onChange={(e) => setExpiryDate(e.target.value)}
+              placeholder="MM"
+              value={expiryMonth}
+              onChange={(e) => setExpiryMonth(e.target.value)}
+              className="input input-bordered input-primary w-full"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-primary-700 text-sm font-semibold mb-2">Expiry Year</label>
+            <input
+              type="text"
+              placeholder="YY"
+              value={expiryYear}
+              onChange={(e) => setExpiryYear(e.target.value)}
               className="input input-bordered input-primary w-full"
               required
             />
@@ -75,4 +102,3 @@ const Payment = () => {
 };
 
 export default Payment;
-

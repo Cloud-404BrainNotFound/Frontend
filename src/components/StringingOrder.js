@@ -5,16 +5,14 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const StringingOrder = () => {
-
   const [sport, setSport] = useState('');
   const [racketModel, setRacketModel] = useState('');
   const [string, setString] = useState('');
   const [tension, setTension] = useState('');
   const [notes, setNotes] = useState('');
   const [pickupDate, setPickupDate] = useState(null);
-
+  
   const navigate = useNavigate();
-
 
   const sportsOptions = [
     {
@@ -66,48 +64,69 @@ const StringingOrder = () => {
       ]
     },
   ];
-
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const selectedString = sportsOptions
       .find(s => s.name === sport)
       ?.strings.find(s => s.name === string);
       
-    const selectedStringPrice = selectedString ? selectedString.price : 0;
-
-    //Send the order data to the backend 
-    try{
-      const response = await axios.post('http://localhost:8000/create_order', {
+    let selectedStringPrice = selectedString ? selectedString.price : 0;
+  
+    // Check if the pickup date is today and add $5 if it is
+    const today = new Date();
+    if (pickupDate && 
+        pickupDate.getDate() === today.getDate() && 
+        pickupDate.getMonth() === today.getMonth() && 
+        pickupDate.getFullYear() === today.getFullYear()) {
+      selectedStringPrice += 5; // Add $5 for same-day pickup
+    }
+  
+    // Log the data being sent
+    console.log({
+      sport,
+      racket_model: racketModel,
+      string,
+      tension,
+      notes,
+      pickup_date: pickupDate,
+      price: selectedStringPrice,
+    });
+  
+    try {
+      const response = await axios.post('http://localhost:8000/orders/order_stringing', {
         sport,
-        racketModel,
+        racket_model: racketModel,
         string,
         tension,
         notes,
-        pickupDate,
-        selectedStringPrice,
+        pickup_date: pickupDate,
+        price: selectedStringPrice,
       });
-
-      if (response.status == 200){
+  
+      if (response.status === 200) {
         navigate('/payment-summary', {
           state: {
-            sport,
-            racketModel,
-            string,
-            tension,
-            notes,
-            pickupDate,
-            selectedStringPrice,
+            orderData: {
+              sport,
+              racket_model: racketModel,
+              string,
+              tension,
+              notes,
+              pickup_date: pickupDate,
+              price: selectedStringPrice,
+            },
           },
         });
       } else {
         alert('Error submitting order. Please try again.');
       }
-    } catch (err){
-      alert('An error occurred while processing your order.');
+    } catch (err) {
+      console.error(err); // Log the error for debugging
+      alert('An error occurred while processing your order. Please check your network connection and try again.');
     }
-    
   };
+  
 
   return (
     <div className="min-h-screen bg-neutral-100 flex items-center justify-center">
@@ -200,7 +219,7 @@ const StringingOrder = () => {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Add any notes here"
-              className="input input-bordered input-primary w-full h-24 pt-2" // Added padding top
+              className="input input-bordered input-primary w-full h-24 pt-2"
             />
           </div>
 

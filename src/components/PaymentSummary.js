@@ -3,25 +3,21 @@ import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 
 const Payment = () => {
-  /*const info = [
-    {
-      cardNumber: '1234567812345678', 
-      expiryMonth: '01' , 
-      expiryYear: '28',  
-      cvc: '123'
-    }
-  ];*/
-  
   const location = useLocation();
   const {
+    orderData,
+    onPaymentSuccess
+  } = location.state || {};
+
+  const {
     sport,
-    racketModel,
+    racket_model: racketModel,
     string,
     tension,
     notes,
-    pickupDate,
-    selectedStringPrice,
-  } = location.state || {};
+    pickup_date: pickupDate,
+    price: selectedStringPrice,
+  } = orderData || {};
 
   const today = new Date();
   const isSameDay =
@@ -42,9 +38,28 @@ const Payment = () => {
   const [cvc, setCvc] = useState('');
   const [paymentStatus, setPaymentStatus] = useState('');
 
+  const handlePayment = async (e) => {
+    e.preventDefault();
+
+    // Simulate payment processing logic
+    const isValidPayment = cardNumber.replace(/\s+/g, '').length === 16 &&
+                            expiryMonth && expiryYear && cvc.length === 3;
+
+    if (isValidPayment) {
+      setPaymentStatus('Payment Successful');
+      alert('Payment Successful!');
+
+      // Call the order submission function passed from StringingOrder
+      await onPaymentSuccess(orderData);
+    } else {
+      setPaymentStatus('Payment Failed');
+      alert('Payment Failed: Please fill all fields correctly.');
+    }
+  };
+
   const handleCardNumberChange = (e) => {
-    const value = e.target.value.replace(/\s+/g, '').slice(0, 16); // Limit to 16 digits
-    const formattedValue = value.replace(/(\d{4})/g, '$1 ').trim(); // Format with spaces
+    const value = e.target.value.replace(/\s+/g, '').slice(0, 16);
+    const formattedValue = value.replace(/(\d{4})/g, '$1 ').trim();
     setCardNumber(formattedValue);
   };
 
@@ -57,7 +72,7 @@ const Payment = () => {
   };
 
   const handleCvcChange = (e) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 3); // Limit CVC to 3 digits
+    const value = e.target.value.replace(/\D/g, '').slice(0, 3);
     setCvc(value);
   };
 
@@ -117,10 +132,10 @@ const Payment = () => {
               <span>{notes || 'No notes provided'}</span>
             </div>
           </div>
-          <hr className="border-t-4 border-primary-500 mb-2" /> {/* Bold green line */}
+          <hr className="border-t-4 border-primary-500 mb-2" />
           <div className="flex justify-between text-2xl font-semibold">
             <span>Total Price:</span>
-            <span className="text-black">${totalPrice.toFixed(2)}</span> {/* Black text for total price */}
+            <span className="text-black">${totalPrice.toFixed(2)}</span>
           </div>
           {isSameDay && <p className="text-red-500 text-sm">* Additional $5 for same-day pickup</p>}
         </div>
