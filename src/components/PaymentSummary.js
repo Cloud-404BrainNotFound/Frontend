@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 
 const Payment = () => {
-  const info = [
+  /*const info = [
     {
       cardNumber: '1234567812345678', 
       expiryMonth: '01' , 
       expiryYear: '28',  
       cvc: '123'
     }
-  ];
+  ];*/
   
   const location = useLocation();
   const {
@@ -32,31 +33,14 @@ const Payment = () => {
   const totalPrice = isSameDay ? selectedStringPrice + 5 : selectedStringPrice;
 
   // Payment states
+  // Payment Details Limitation
+  // Local validation
+  // Send payment data to the backend 
   const [cardNumber, setCardNumber] = useState('');
   const [expiryMonth, setExpiryMonth] = useState('');
   const [expiryYear, setExpiryYear] = useState('');
   const [cvc, setCvc] = useState('');
   const [paymentStatus, setPaymentStatus] = useState('');
-
-  const handlePayment = (e) => {
-    e.preventDefault();
-
-    const information = info.find(
-      (information) => 
-        information.cardNumber === cardNumber.replace(/\s+/g, '') && // Delete spaces
-        information.expiryMonth === expiryMonth && 
-        information.expiryYear === expiryYear.slice(-2) && // Last two digits
-        information.cvc === cvc
-    );
-
-    if (information) {
-      setPaymentStatus('Payment Successful');
-      alert('Payment Successful!');
-    } else {
-      setPaymentStatus('Payment Failed');
-      alert('Payment Failed: Please fill all fields correctly.');
-    }
-  };
 
   const handleCardNumberChange = (e) => {
     const value = e.target.value.replace(/\s+/g, '').slice(0, 16); // Limit to 16 digits
@@ -76,6 +60,30 @@ const Payment = () => {
     const value = e.target.value.replace(/\D/g, '').slice(0, 3); // Limit CVC to 3 digits
     setCvc(value);
   };
+
+  const handlePayment = async(e) => {
+    e.preventDefault();
+
+    const information = info.find(
+      (information) => 
+        information.cardNumber === cardNumber.replace(/\s+/g, '') && // Remove spaces
+        information.expiryMonth === expiryMonth && 
+        information.expiryYear === expiryYear.slice(-2) && // Last two digits
+        information.cvc === cvc
+    );
+
+    if (information) {
+      setPaymentStatus('Payment Successful');
+      alert('Payment Successful!');
+    } else {
+      setPaymentStatus('Payment Failed');
+      alert('Payment Failed: Please fill all fields correctly.');
+    }
+
+    const 
+  };
+
+
 
   return (
     <div className="min-h-screen bg-neutral-100 flex items-start justify-center pt-8">
