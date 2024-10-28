@@ -71,19 +71,42 @@ const StringingOrder = () => {
       ?.strings.find(s => s.name === string);
       
     const selectedStringPrice = selectedString ? selectedString.price : 0;
+    const formattedPickupDate = pickupDate ? pickupDate.toISOString() : null;
 
-    navigate('/payment', {
-      state: {
-        sport,
-        racketModel,
-        string,
-        tension,
-        notes,
-        pickupDate,
-        selectedStringPrice,
-      },
-    });
+    const requestBody = {
+      sport,
+      racket_model: racketModel,
+      string,
+      tension,
+      pickup_date: formattedPickupDate,
+      notes,
+      price: selectedStringPrice,
+    };
+  
+    try {
+      const response = await fetch('http://54.237.161.55:8009/orders/order_stringing', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Order created:', data);
+      } else {
+        console.error('Failed to create order:', response.status);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
+
+
+
+
+
 
   return (
     <div className="min-h-screen bg-neutral-100 flex items-center justify-center">

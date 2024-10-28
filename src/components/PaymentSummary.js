@@ -40,8 +40,7 @@ const Payment = () => {
 
   const handlePayment = async (e) => {
     e.preventDefault();
-
-    // Simulate payment processing logic
+    
     const isValidPayment = cardNumber.replace(/\s+/g, '').length === 16 &&
                             expiryMonth && expiryYear && cvc.length === 3;
 
