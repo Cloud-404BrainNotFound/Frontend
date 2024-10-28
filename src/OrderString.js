@@ -64,13 +64,22 @@ const StringingOrder = () => {
     },
   ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const selectedString = sportsOptions
       .find(s => s.name === sport)
       ?.strings.find(s => s.name === string);
       
     const selectedStringPrice = selectedString ? selectedString.price : 0;
+
+    // Check if the pickup date is today and add $5 if it is
+    /*const today = new Date();
+    if (pickupDate && 
+        pickupDate.getDate() === today.getDate() && 
+        pickupDate.getMonth() === today.getMonth() && 
+        pickupDate.getFullYear() === today.getFullYear()) {
+      selectedStringPrice += 5; // Add $5 for same-day pickup
+    }*/
     const formattedPickupDate = pickupDate ? pickupDate.toISOString() : null;
 
     const requestBody = {
@@ -84,28 +93,38 @@ const StringingOrder = () => {
     };
   
     try {
-      const response = await fetch('http://54.237.161.55:8009/orders/order_stringing', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
+      const response = await axios.post('http://54.237.161.55:8009/orders/order_stringing', {
+        sport,
+        racket_model: racketModel,
+        string,
+        tension,
+        notes,
+        pickup_date: formattedPickupDate,  
+        price: selectedStringPrice,
       });
   
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Order created:', data);
+      if (response.status === 200 || response.status === 201) {
+        navigate('/payment-summary', {
+          state: {
+            orderData: {
+              sport,
+              racket_model: racketModel,
+              string,
+              tension,
+              notes,
+              pickup_date: formattedPickupDate,
+              price: selectedStringPrice,
+            },
+          },
+        });
       } else {
-        console.error('Failed to create order:', response.status);
+        alert('Error submitting order. Please try again.');
       }
-    } catch (error) {
-      console.error('Error:', error);
+    } catch (err) {
+      console.error(err); 
+      alert('An error occurred while processing your order. Please check your network connection and try again.');
     }
   };
-
-
-
-
 
 
   return (
