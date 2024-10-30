@@ -74,13 +74,13 @@ const StringingOrder = () => {
     let selectedStringPrice = selectedString ? selectedString.price : 0;
   
     // Check if the pickup date is today and add $5 if it is
-    const today = new Date();
+    /*const today = new Date();
     if (pickupDate && 
         pickupDate.getDate() === today.getDate() && 
         pickupDate.getMonth() === today.getMonth() && 
         pickupDate.getFullYear() === today.getFullYear()) {
       selectedStringPrice += 5; // Add $5 for same-day pickup
-    }
+    }*/
 
     // Format pickupDate to ISO string
     const formattedPickupDate = pickupDate ? pickupDate.toISOString() : null;
@@ -97,7 +97,7 @@ const StringingOrder = () => {
     });
   
     try {
-      const response = await axios.post('http://54.237.161.55:8009/orders/order_stringing', {
+      const response = await axios.post('http://54.237.161.55:8008/orders/order_stringing', {
         sport,
         racket_model: racketModel,
         string,
