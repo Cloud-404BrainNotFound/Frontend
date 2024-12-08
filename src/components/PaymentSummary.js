@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 
 const Payment = () => {
@@ -28,6 +29,9 @@ const Payment = () => {
   const totalPrice = isSameDay ? selectedStringPrice + 5 : selectedStringPrice;
 
   // Payment states
+  // Payment Details Limitation
+  // Local validation
+  // Send payment data to the backend 
   const [cardNumber, setCardNumber] = useState('');
   const [expiryMonth, setExpiryMonth] = useState('');
   const [expiryYear, setExpiryYear] = useState('');
@@ -36,8 +40,7 @@ const Payment = () => {
 
   const handlePayment = async (e) => {
     e.preventDefault();
-
-    // Simulate payment processing logic
+    
     const isValidPayment = cardNumber.replace(/\s+/g, '').length === 16 &&
                             expiryMonth && expiryYear && cvc.length === 3;
 
