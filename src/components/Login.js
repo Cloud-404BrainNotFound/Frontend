@@ -60,9 +60,11 @@ const Login = () => {
   const handleGoogleResponse = async (response) => {
     try {
       setLoading(true);
+      console.log("Google response:", response); // 添加调试日志
+      console.log("Google token:", response.credential); 
       setError({ email: '', password: '', general: '' });
 
-      const resp = await fetch('http://localhost:8000/login', {
+      const resp = await fetch('http://localhost:8000/users/login/google', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -71,9 +73,10 @@ const Login = () => {
           google_token: response.credential
         })
       });
-
+      console.log("Response status:", resp.status);
       const data = await resp.json();
-      
+      console.log("Response data:", data);
+
       if (!resp.ok) {
         throw new Error(data.detail || 'Login failed');
       }
@@ -84,6 +87,7 @@ const Login = () => {
         navigate(from, { replace: true });
       }
     } catch (error) {
+      console.error('Login error:', error);
       setError({ email: '', password: '', general: error.message });
     } finally {
       setLoading(false);
@@ -118,7 +122,7 @@ const Login = () => {
         formData.append('email', email);
         formData.append('password', password);
 
-        const response = await fetch('http://localhost:8000/users/login', {
+        const response = await fetch('http://localhost:8000/users/login/email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
