@@ -51,7 +51,7 @@ const Payment = () => {
               type="text"
               placeholder="1234567812345678"
               value={cardNumber}
-              onChange={(e) => setCardNumber(e.target.value.replace(/\s+/g, ''))} // Remove spaces
+              onChange={(e) => setCardNumber(e.target.value.replace(/\s+/g, ''))}
               className="input input-bordered input-primary w-full"
               required
             />
