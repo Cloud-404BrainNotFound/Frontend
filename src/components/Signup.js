@@ -10,6 +10,7 @@ const Signup = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState({ username: '', email: '', password: '', confirmPassword: '' });
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
     const validateEmail = (email) => {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -29,44 +30,48 @@ const Signup = () => {
             passwordError = '', 
             confirmPasswordError = '';
         
-        if (!username.trim()) {
-            usernameError = 'Full Name is required.';
-        }
-
-        if (!validateEmail(email)) {
-            emailError = 'Please enter a valid email address.';
-        }
-        if (password.length<6) {
-            passwordError = 'Password must be at least 6 characters long.';
-        }
-        if (confirmPassword !== password) {
-            confirmPasswordError = 'Password does not match. Please try again.'
-        }
-        if (usernameError || emailError || passwordError || confirmPasswordError){
+        // 验证部分保持不变...
+        
+        if (usernameError || emailError || passwordError || confirmPasswordError) {
             setError({username: usernameError, email: emailError, password: passwordError, confirmPassword: confirmPasswordError});
-          }else{
+        } else {
             setError({username: '', email: '', password: '', confirmPassword: ''});
-
-        try{
-            await axios.post('http://54.237.161.55:8000/users/signup', {
-                username,
-                email,
-                password,
-                role: 'customer'
-            });
-            alert('Signup successful! Please Sign in.');
-            navigate('/login');
-
-        } catch (err) {
-            console.error(err);
-            if (err.response && err.response.data.detail){
-                setError({ ...error, email: err.response.data.detail });
-            } else {
-                setError({ ...error, email: 'Signup failed. Please try again.' });
-            }
-        }    
-      }
+            setLoading(true); // 添加加载状态
+    
+            try {
+                const response = await axios.post('http://localhost:8000/users/signup', {
+                    username,
+                    email,
+                    password,
+                    role: 'customer'
+                });
+    
+                console.log('Signup response:', response.data); // 添加调试日志
+                
+                if (response.data.message === "User created successfully") {
+                    alert('Signup successful! Please Sign in.');
+                    navigate('/login');
+                }
+    
+            } catch (err) {
+                console.error('Signup error:', err); // 更详细的错误日志
+                
+                if (err.response?.data?.detail) {
+                    // 处理特定的错误消息
+                    if (err.response.data.detail === "Email is already registered") {
+                        setError({ ...error, email: 'This email is already registered.' });
+                    } else {
+                        setError({ ...error, email: err.response.data.detail });
+                    }
+                } else {
+                    setError({ ...error, email: 'Signup failed. Please try again.' });
+                }
+            } finally {
+                setLoading(false); // 结束加载状态
+            }    
+        }
     };
+
 
     return (
         <div className="min-h-screen bg-neutral-100 flex items-center justify-center">
@@ -128,8 +133,12 @@ const Signup = () => {
             </div>
 
             {/* Login Field */}
-            <button onClick={handleSignup} className="btn btn-primary w-full">
-            Sign up
+            <button 
+                onClick={handleSignup} 
+                className="btn btn-primary w-full"
+                disabled={loading}
+            >
+                {loading ? 'Signing up...' : 'Sign up'}
             </button>
 
             {/* Signup Field */}

@@ -81,10 +81,14 @@ const Login = () => {
         throw new Error(data.detail || 'Login failed');
       }
 
-      if (data.access_token) {
+      if (data.message === "Login successful") {
         login(data.access_token);
-        const from = location.state?.from?.pathname || '/home';
-        navigate(from, { replace: true });
+        if (location.state?.from?.pathname) {
+          navigate(location.state.from.pathname);
+        } else {
+          alert('jumping to string order page.')
+          navigate('/stringing-order');
+        }
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -132,13 +136,17 @@ const Login = () => {
         
         const data = await response.json();
 
-        if (data.access_token) {
+        if (data.message === "Login successful") {
           login(data.access_token);
           const decoded = jwtDecode(data.access_token);
-          const from = location.state?.from?.pathname || '/home';
-          navigate(from, { replace: true });
-        }
-      } catch (error) {
+          if (location.state?.from?.pathname) {
+            navigate(location.state.from.pathname);
+            } else {
+            alert('jumping to string order page.')
+            navigate('/stringing-order');
+            }
+          }
+        } catch (error) {
         setError({ 
           email: '', 
           password: '', 
