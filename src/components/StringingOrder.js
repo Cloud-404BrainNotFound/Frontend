@@ -64,29 +64,20 @@ const StringingOrder = () => {
       ]
     },
   ];
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    
+
     const selectedString = sportsOptions
       .find(s => s.name === sport)
       ?.strings.find(s => s.name === string);
       
     let selectedStringPrice = selectedString ? selectedString.price : 0;
   
-    // Check if the pickup date is today and add $5 if it is
-    /*const today = new Date();
-    if (pickupDate && 
-        pickupDate.getDate() === today.getDate() && 
-        pickupDate.getMonth() === today.getMonth() && 
-        pickupDate.getFullYear() === today.getFullYear()) {
-      selectedStringPrice += 5; // Add $5 for same-day pickup
-    }*/
-
-    // Format pickupDate to ISO string
     const formattedPickupDate = pickupDate ? pickupDate.toISOString() : null;
 
-    // Log the data being sent
-    console.log({
+    const orderData = {
       sport,
       racket_model: racketModel,
       string,
@@ -94,39 +85,37 @@ const StringingOrder = () => {
       notes,
       pickup_date: formattedPickupDate,
       price: selectedStringPrice,
-    });
+    };
+
+    console.log(`Submitting order with data:`, orderData);
   
     try {
-      const response = await axios.post('http://54.237.161.55:8008/orders/order_stringing', {
-        sport,
-        racket_model: racketModel,
-        string,
-        tension,
-        notes,
-        pickup_date: formattedPickupDate,
-        price: selectedStringPrice,
-      });
-  
+      const response = await axios.post('http://localhost:8008/orders/order_stringing', orderData);
+      
+      console.log('Server response:', response);
+
       if (response.status === 200 || response.status === 201) {
         navigate('/payment-summary', {
           state: {
-            orderData: {
-              sport,
-              racket_model: racketModel,
-              string,
-              tension,
-              notes,
-              pickup_date: formattedPickupDate,
-              price: selectedStringPrice,
-            },
+            orderData,
           },
         });
       } else {
+        console.error('Unexpected response status:', response.status);
         alert('Error submitting order. Please try again.');
       }
     } catch (err) {
-      console.error(err); // Log the error for debugging
-      alert('An error occurred while processing your order. Please check your network connection and try again.');
+      console.error('Error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        data: err.response?.data
+      });
+      const errorMessage = err.response?.data?.detail || 
+                         err.response?.data?.message || 
+                         'An error occurred while processing your order. Please try again.';
+      
+      alert(errorMessage);
     }
   };
   

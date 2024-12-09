@@ -19,12 +19,14 @@ const Payment = () => {
     price: selectedStringPrice,
   } = orderData || {};
 
+  const dateObj = pickupDate ? new Date(pickupDate) : null;
+
   const today = new Date();
   const isSameDay =
-    pickupDate &&
-    today.getFullYear() === pickupDate.getFullYear() &&
-    today.getMonth() === pickupDate.getMonth() &&
-    today.getDate() === pickupDate.getDate();
+    dateObj &&
+    today.getFullYear() === dateObj.getFullYear() &&
+    today.getMonth() === dateObj.getMonth() &&
+    today.getDate() === dateObj.getDate();
 
   const totalPrice = isSameDay ? selectedStringPrice + 5 : selectedStringPrice;
 
@@ -41,15 +43,19 @@ const Payment = () => {
   const handlePayment = async (e) => {
     e.preventDefault();
     
-    const isValidPayment = cardNumber.replace(/\s+/g, '').length === 16 &&
-                            expiryMonth && expiryYear && cvc.length === 3;
+    const isValidPayment = 
+      cardNumber.replace(/\s+/g, '').length === 16 &&
+      expiryMonth && expiryYear && cvc.length === 3;
 
     if (isValidPayment) {
       setPaymentStatus('Payment Successful');
       alert('Payment Successful!');
 
-      // Call the order submission function passed from StringingOrder
-      await onPaymentSuccess(orderData);
+      if (typeof onPaymentSuccess === 'function') {
+        await onPaymentSuccess(orderData);
+      } else {
+        console.warn('onPaymentSuccess is not provided or is not a function.');
+      }
     } else {
       setPaymentStatus('Payment Failed');
       alert('Payment Failed: Please fill all fields correctly.');
@@ -100,7 +106,7 @@ const Payment = () => {
             </div>
             <div className="flex justify-between text-lg mb-2">
               <span><strong>Pickup Date:</strong></span>
-              <span>{pickupDate ? pickupDate.toLocaleDateString() : 'Not specified'}</span>
+              <span>{dateObj ? dateObj.toLocaleDateString() : 'Not specified'}</span>
             </div>
             <div className="flex justify-between text-lg mb-2">
               <span><strong>Notes:</strong></span>
