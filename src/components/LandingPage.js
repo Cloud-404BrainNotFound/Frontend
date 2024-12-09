@@ -33,7 +33,8 @@ const LandingPage = () => {
           </div>
           <nav className="space-x-6">
             <a href="/about" className="text-white hover:text-primary-300">About Us</a>
-            <a href="/help" className="text-white hover:text-primary-300">Help</a>
+            <a href="/login" className="text-white hover:text-primary-300">Login</a>
+            <a href="/signup" className="text-white hover:text-primary-300">Sign up</a>
           </nav>
         </div>
       </header>

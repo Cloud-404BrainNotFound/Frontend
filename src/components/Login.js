@@ -60,11 +60,11 @@ const Login = () => {
   const handleGoogleResponse = async (response) => {
     try {
       setLoading(true);
-      console.log("Google response:", response); // 添加调试日志
+      console.log("Google response:", response); 
       console.log("Google token:", response.credential); 
       setError({ email: '', password: '', general: '' });
 
-      const resp = await fetch('http://localhost:8000/users/login/google', {
+      const resp = await fetch('http://localhost:8080/api/users/login/google', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ const Login = () => {
         formData.append('email', email);
         formData.append('password', password);
 
-        const response = await fetch('http://localhost:8000/users/login/email', {
+        const response = await fetch('http://localhost:8080/api/users/login/email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
