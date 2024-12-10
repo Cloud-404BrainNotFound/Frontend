@@ -90,7 +90,7 @@ const StringingOrder = () => {
     console.log(`Submitting order with data:`, orderData);
   
     try {
-      const response = await axios.post('http://localhost:8008/orders/order_stringing', orderData);
+      const response = await axios.post('http://localhost:8080/api/orders/order_stringing', orderData);
       
       console.log('Server response:', response);
 
@@ -203,7 +203,7 @@ const StringingOrder = () => {
               isClearable
             />
           </div>
-
+          
           {/* Notes to Stringer */}
           <div className="mb-4">
             <label className="block text-primary-700 text-sm font-semibold mb-2">Notes to Stringer</label>
