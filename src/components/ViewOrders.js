@@ -6,42 +6,61 @@ const ViewOrders = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 5;
   
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { reviewSubmitted, orderId } = location.state || {};
+
   const sportEmojis = {
     Tennis: '🎾',
     Badminton: '🏸',
     Squash: '⚫️',
   };
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const userId = localStorage.getItem('user_id');
-        console.log('Current userId from localStorage:', userId);
-        
-        if (!userId) {
-          console.error('User ID not found in localStorage');
-          return;
-        }
-        
-        const response = await fetch(`http://3.80.156.123:7999/composite/orders/user/${userId}`);
-        const data = await response.json();
-        console.log('API Response:', data);
-        console.log('Orders:', data.orders);
-        setOrders(data.orders);
-      } catch (error) {
-        console.error('Error fetching orders:', error);
+  const fetchOrders = React.useCallback(async () => {
+    try {
+      const userId = localStorage.getItem('user_id');
+      console.log('Current userId from localStorage:', userId);
+      
+      if (!userId) {
+        console.error('User ID not found in localStorage');
+        return;
       }
-    };
-
-    fetchOrders();
+      
+      const response = await fetch(`http://3.80.156.123:7999/composite/orders/user/${userId}`);
+      const data = await response.json();
+      console.log('API Response:', data);
+      console.log('Orders:', data.orders);
+      setOrders(data.orders);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    }
   }, []);
 
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { reviewSubmitted, orderId } = location.state || {};
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
-  const handleWriteReview = (orderId) => {
-    navigate(`/write-review/${orderId}`);
+  useEffect(() => {
+    if (reviewSubmitted) {
+      console.log(`Review ${location.state?.isUpdate ? 'updated' : 'submitted'} for order ${orderId}`);
+      fetchOrders();
+    }
+  }, [reviewSubmitted, orderId, fetchOrders]);
+
+  const handleWriteReview = (order) => {
+    console.log('Writing review for order:', order.id);
+    navigate(`/write-review/${order.id}`, {
+      state: { 
+        order: {
+          id: order.id,
+          sport: order.sport,
+          racket_model: order.racket_model,
+          string: order.string,
+          tension: order.tension,
+          // Include any other order details you want to display in the review page
+        }
+      }
+    });
   };
 
   const handleViewReview = (order) => {
@@ -102,8 +121,8 @@ const ViewOrders = () => {
                   </td>
                   <td className="px-4 py-2 text-neutral-700">
                     <button
-                      className="px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600"
-                      onClick={() => handleWriteReview(order.id)}
+                      onClick={() => handleWriteReview(order)}
+                      className="px-4 py-2 bg-primary-500 text-white rounded"
                     >
                       Write Review
                     </button>

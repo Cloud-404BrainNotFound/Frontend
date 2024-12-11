@@ -1,84 +1,111 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-const WriteReview = ({ order, onSubmit, onCancel, userId }) => {
+const WriteReview = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const order = location.state?.order;
+  const userId = localStorage.getItem('user_id');
+
+  console.log('WriteReview order from location:', order);
+
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
   const [existingReview, setExistingReview] = useState(null);
+  const [error, setError] = useState(null);
 
-  const navigate = useNavigate();
-
-  // Add check for order
   useEffect(() => {
-    // Only fetch if order exists and has an id
+    console.log('useEffect order:', order);
+    
     if (!order?.id) {
+      console.log('No order ID found');
       return;
     }
 
     const fetchExistingReview = async () => {
       try {
         const response = await fetch(`http://3.80.156.123:7999/composite/reviews/order/${order.id}`);
-        if (response.ok) {
-          const data = await response.json();
-          if (data) {
-            setRating(data.rating);
-            setReview(data.content);
-            setExistingReview(data);
-          }
+        if (!response.ok) {
+          throw new Error('Failed to fetch review');
+        }
+        const data = await response.json();
+        if (data && Object.keys(data).length > 0) {
+          setRating(data.rating);
+          setReview(data.content);
+          setExistingReview(data);
         }
       } catch (error) {
         console.error('Error fetching review:', error);
+        setError('Failed to fetch review information');
       }
     };
 
     fetchExistingReview();
-  }, [order?.id]); // Changed dependency to use optional chaining
+  }, [order]);
 
   const handleStarClick = (index) => {
     setRating(index + 1);
   };
 
   const handleSubmit = async () => {
+    console.log('Current userId:', userId);
+    console.log('Current order:', order);
+
+    if (!userId || !order?.id) {
+      alert('Missing user or order information');
+      console.log('userId:', userId, 'order:', order);
+      return;
+    }
+
     if (rating === 0 || review.trim() === '') {
       alert('Please provide a rating and a review.');
       return;
     }
 
     try {
-      const url = existingReview 
-        ? `http://3.80.156.123:7999/composite/reviews/${existingReview.id}`
-        : 'http://3.80.156.123:7999/composite/reviews/order';
+      const url = 'http://3.80.156.123:7999/composite/reviews/order';
       
-      const method = existingReview ? 'PUT' : 'POST';
+      const requestBody = {
+        user_id: userId,
+        order_id: order.id,
+        rating: parseInt(rating, 10),
+        content: review.trim(),
+        review_type: "service",
+        extra: {
+          string_durability: "excellent",
+          service_speed: "fast"
+        }
+      };
+
+      console.log('Sending request with body:', requestBody);
 
       const response = await fetch(url, {
-        method: method,
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          user_id: userId,
-          order_id: order.id,
-          rating: rating,
-          content: review.trim(),
-        }),
+        body: JSON.stringify(requestBody),
       });
 
-      if (response.ok) {
-        alert(existingReview ? 'Review updated successfully!' : 'Review submitted successfully!');
-        navigate('/orders', { 
-          state: { 
-            reviewSubmitted: true, 
-            orderId: order.id,
-            isUpdate: !!existingReview 
-          } 
-        });
-      } else {
-        alert(existingReview ? 'Failed to update review. Please try again.' : 'Failed to submit review. Please try again.');
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Server error:', errorData);
+        throw new Error(`Failed to create review: ${response.status}: ${errorData.detail || errorData.message || 'Unknown error'}`);
       }
+
+      const responseData = await response.json();
+      console.log('Review submitted successfully:', responseData);
+
+      alert('Review submitted successfully!');
+      navigate('/orders', { 
+        state: { 
+          reviewSubmitted: true, 
+          orderId: order.id
+        } 
+      });
     } catch (error) {
       console.error('Error with review:', error);
-      alert(existingReview ? 'Failed to update review. Please try again.' : 'Failed to submit review. Please try again.');
+      alert(error.message || 'Failed to submit review. Please try again.');
     }
   };
 
@@ -114,7 +141,7 @@ const WriteReview = ({ order, onSubmit, onCancel, userId }) => {
         <div className="flex justify-end space-x-4">
           <button
             type="button"
-            onClick={onCancel}
+            onClick={() => navigate(-1)}
             className="px-4 py-2 bg-neutral-200 text-neutral-800 rounded hover:bg-neutral-300"
           >
             Cancel
