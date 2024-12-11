@@ -5,6 +5,7 @@ const ViewOrders = () => {
   const [orders, setOrders] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 5;
+  const [orderReviews, setOrderReviews] = useState({});
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -14,6 +15,20 @@ const ViewOrders = () => {
     Tennis: '🎾',
     Badminton: '🏸',
     Squash: '⚫️',
+  };
+
+  const fetchOrderReviews = async (orders) => {
+    try {
+      const reviewStatuses = {};
+      for (const order of orders) {
+        const response = await fetch(`http://3.80.156.123:7999/composite/reviews/order/${order.id}`);
+        const data = await response.json();
+        reviewStatuses[order.id] = data;
+      }
+      setOrderReviews(reviewStatuses);
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    }
   };
 
   const fetchOrders = React.useCallback(async () => {
@@ -31,6 +46,7 @@ const ViewOrders = () => {
       console.log('API Response:', data);
       console.log('Orders:', data.orders);
       setOrders(data.orders);
+      await fetchOrderReviews(data.orders);
     } catch (error) {
       console.error('Error fetching orders:', error);
     }
@@ -45,7 +61,7 @@ const ViewOrders = () => {
       console.log(`Review ${location.state?.isUpdate ? 'updated' : 'submitted'} for order ${orderId}`);
       fetchOrders();
     }
-  }, [reviewSubmitted, orderId, fetchOrders]);
+  }, [reviewSubmitted, orderId, fetchOrders, location.state?.isUpdate]);
 
   const handleWriteReview = (order) => {
     console.log('Writing review for order:', order.id);
@@ -64,7 +80,18 @@ const ViewOrders = () => {
   };
 
   const handleViewReview = (order) => {
-    navigate(`/review/${order.id}`); // Assuming a separate route to view reviews
+    navigate('/view-reviews', {
+      state: { 
+        orderId: order.id,
+        order: {
+          sport: order.sport,
+          racket_model: order.racket_model,
+          string: order.string,
+          tension: order.tension,
+          // Add any other order details you want to pass
+        }
+      }
+    });
   };
 
   // Calculate pagination values
@@ -121,10 +148,10 @@ const ViewOrders = () => {
                   </td>
                   <td className="px-4 py-2 text-neutral-700">
                     <button
-                      onClick={() => handleWriteReview(order)}
+                      onClick={() => orderReviews[order.id] ? handleViewReview(order) : handleWriteReview(order)}
                       className="px-4 py-2 bg-primary-500 text-white rounded"
                     >
-                      Write Review
+                      {orderReviews[order.id] ? 'View Review' : 'Write Review'}
                     </button>
                   </td>
                 </tr>

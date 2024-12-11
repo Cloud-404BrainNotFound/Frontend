@@ -96,13 +96,19 @@ const WriteReview = () => {
       const responseData = await response.json();
       console.log('Review submitted successfully:', responseData);
 
-      alert('Review submitted successfully!');
-      navigate('/orders', { 
-        state: { 
-          reviewSubmitted: true, 
-          orderId: order.id
-        } 
-      });
+      // Show success modal
+      document.getElementById('success_modal').showModal();
+      
+      // Navigate after delay
+      setTimeout(() => {
+        navigate('/orders', { 
+          state: { 
+            reviewSubmitted: true, 
+            orderId: order.id
+          } 
+        });
+      }, 2000);
+
     } catch (error) {
       console.error('Error with review:', error);
       alert(error.message || 'Failed to submit review. Please try again.');
@@ -155,6 +161,21 @@ const WriteReview = () => {
           </button>
         </div>
       </div>
+      {/* Success Modal */}
+      <dialog id="success_modal" className="modal modal-bottom sm:modal-middle">
+        <div className="modal-box bg-white">
+          <div className="flex flex-col items-center justify-center">
+            <div className="mb-4 text-7xl">✅</div>
+            <h3 className="font-bold text-2xl mb-4 text-primary-800">Review Submitted!</h3>
+            <p className="text-lg mb-2">Thank you for your feedback</p>
+            <p className="text-sm text-gray-600 mb-4">Redirecting to orders page...</p>
+            <div className="loading loading-spinner loading-md text-primary"></div>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
     </div>
   );
 };
