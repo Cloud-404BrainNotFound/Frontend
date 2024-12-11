@@ -89,112 +89,124 @@ const StringingOrder = () => {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-100 flex items-center justify-center">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-3xl font-bold mb-6 text-center text-primary-800">Stringing Order</h2>
-        <form onSubmit={handleSubmit}>
-          {/* Sport Selection */}
-          <div className="mb-4">
-            <h3 className="block text-primary-700 text-sm font-semibold mb-2">Sport</h3>
-            <div className="flex justify-center space-x-2">
-              {availableOptions?.sports.map(({ name }) => (
-                <button
-                  key={name}
-                  type="button"
-                  className={`btn ${sport === name ? 'btn-primary' : 'btn-outline'} p-2`}
-                  onClick={() => {
-                    setSport(name);
-                    setString('');
-                    setRacketModel('');
-                  }}
-                >
-                  {getSportEmoji(name)} {name}
-                </button>
-              ))}
+    <div className="min-h-screen bg-neutral-100 flex flex-col">
+      <div className="container mx-auto px-8 pt-8">
+        <button
+          onClick={() => navigate('/profile')}
+          className="flex items-center gap-3 px-0 py-4 mb-8 text-xl text-primary-600 hover:text-primary-700 transition-colors"
+        >
+          <span className="text-2xl">←</span>
+          Return to Profile
+        </button>
+      </div>
+      
+      <div className="flex-grow flex items-center justify-center">
+        <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
+          <h2 className="text-3xl font-bold mb-6 text-center text-primary-800">Stringing Order</h2>
+          <form onSubmit={handleSubmit}>
+            {/* Sport Selection */}
+            <div className="mb-4">
+              <h3 className="block text-primary-700 text-sm font-semibold mb-2">Sport</h3>
+              <div className="flex justify-center space-x-2">
+                {availableOptions?.sports.map(({ name }) => (
+                  <button
+                    key={name}
+                    type="button"
+                    className={`btn ${sport === name ? 'btn-primary' : 'btn-outline'} p-2`}
+                    onClick={() => {
+                      setSport(name);
+                      setString('');
+                      setRacketModel('');
+                    }}
+                  >
+                    {getSportEmoji(name)} {name}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Racket Model - Changed to dropdown */}
-          <div className="mb-4">
-            <label className="block text-primary-700 text-sm font-semibold mb-2">Racket Model</label>
-            <select
-              value={racketModel}
-              onChange={(e) => setRacketModel(e.target.value)}
-              className="input input-bordered input-primary w-full"
-              required
+            {/* Racket Model - Changed to dropdown */}
+            <div className="mb-4">
+              <label className="block text-primary-700 text-sm font-semibold mb-2">Racket Model</label>
+              <select
+                value={racketModel}
+                onChange={(e) => setRacketModel(e.target.value)}
+                className="input input-bordered input-primary w-full"
+                required
+              >
+                <option value="">Select a racket</option>
+                {sport && availableOptions?.sports
+                  .find(s => s.name === sport)
+                  ?.rackets.map(({ name }) => (
+                    <option key={name} value={name}>{name}</option>
+                  ))}
+              </select>
+            </div>
+
+            {/* String Selection */}
+            <div className="mb-4">
+              <label className="block text-primary-700 text-sm font-semibold mb-2">String</label>
+              <select
+                value={string}
+                onChange={(e) => setString(e.target.value)}
+                className="input input-bordered input-primary w-full"
+                required
+              >
+                <option value="">Select a string</option>
+                {sport && availableOptions?.sports
+                  .find(s => s.name === sport)
+                  ?.strings.map(({ name }) => (
+                    <option key={name} value={name}>{name}</option>
+                  ))}
+              </select>
+            </div>
+
+            {/* Tension */}
+            <div className="mb-4">
+              <label className="block text-primary-700 text-sm font-semibold mb-2">Tension</label>
+              <input
+                type="text"
+                value={tension}
+                onChange={(e) => setTension(e.target.value)}
+                placeholder="e.g., 25 or 25x27"
+                className="input input-bordered input-primary w-full"
+                required
+              />
+            </div>
+
+            {/* Desired Pickup Date */}
+            <div className="mb-4">
+              <label className="block text-primary-700 text-sm font-semibold mb-2">Desired Pickup Date</label>
+              <DatePicker
+                selected={pickupDate}
+                onChange={(date) => setPickupDate(date)}
+                dateFormat="MMMM d, yyyy"
+                className="input input-bordered w-full max-w-xs"
+                placeholderText="Select a date"
+                isClearable
+              />
+            </div>
+            
+            {/* Notes to Stringer */}
+            <div className="mb-4">
+              <label className="block text-primary-700 text-sm font-semibold mb-2">Notes to Stringer</label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Add any notes here"
+                className="input input-bordered input-primary w-full h-24 pt-2"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="btn btn-primary w-full"
             >
-              <option value="">Select a racket</option>
-              {sport && availableOptions?.sports
-                .find(s => s.name === sport)
-                ?.rackets.map(({ name }) => (
-                  <option key={name} value={name}>{name}</option>
-                ))}
-            </select>
-          </div>
-
-          {/* String Selection */}
-          <div className="mb-4">
-            <label className="block text-primary-700 text-sm font-semibold mb-2">String</label>
-            <select
-              value={string}
-              onChange={(e) => setString(e.target.value)}
-              className="input input-bordered input-primary w-full"
-              required
-            >
-              <option value="">Select a string</option>
-              {sport && availableOptions?.sports
-                .find(s => s.name === sport)
-                ?.strings.map(({ name }) => (
-                  <option key={name} value={name}>{name}</option>
-                ))}
-            </select>
-          </div>
-
-          {/* Tension */}
-          <div className="mb-4">
-            <label className="block text-primary-700 text-sm font-semibold mb-2">Tension</label>
-            <input
-              type="text"
-              value={tension}
-              onChange={(e) => setTension(e.target.value)}
-              placeholder="e.g., 25 or 25x27"
-              className="input input-bordered input-primary w-full"
-              required
-            />
-          </div>
-
-          {/* Desired Pickup Date */}
-          <div className="mb-4">
-            <label className="block text-primary-700 text-sm font-semibold mb-2">Desired Pickup Date</label>
-            <DatePicker
-              selected={pickupDate}
-              onChange={(date) => setPickupDate(date)}
-              dateFormat="MMMM d, yyyy"
-              className="input input-bordered w-full max-w-xs"
-              placeholderText="Select a date"
-              isClearable
-            />
-          </div>
-          
-          {/* Notes to Stringer */}
-          <div className="mb-4">
-            <label className="block text-primary-700 text-sm font-semibold mb-2">Notes to Stringer</label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add any notes here"
-              className="input input-bordered input-primary w-full h-24 pt-2"
-            />
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="btn btn-primary w-full"
-          >
-            Proceed to Payment
-          </button>
-        </form>
+              Proceed to Payment
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -78,7 +78,7 @@ const ProfilePage = () => {
           <p className="text-neutral-600 mt-1 mb-4">{userData.email}</p>
           
           {/* Quick Links */}
-          <div className="grid grid-cols-2 gap-4 mb-6 mt-6">
+          <div className="grid grid-cols-3 gap-4 mb-6 mt-6">
             <Link
               to="/stringing-order"
               className="py-4 text-center bg-primary-500 text-white font-semibold rounded hover:bg-primary-600"
@@ -90,6 +90,12 @@ const ProfilePage = () => {
               className="py-4 text-center bg-accent-500 text-white font-semibold rounded hover:bg-accent-600"
             >
               View Orders
+            </Link>
+            <Link
+              to="/"
+              className="py-4 text-center bg-secondary-500 text-white font-semibold rounded hover:bg-secondary-600"
+            >
+              Return Home
             </Link>
           </div>
         </div>

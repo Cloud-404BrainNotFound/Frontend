@@ -142,6 +142,14 @@ const ViewOrders = () => {
   return (
     <div className="min-h-screen bg-neutral-50 p-8">
       <div className="container mx-auto">
+        <button
+          onClick={() => navigate('/profile')}
+          className="flex items-center gap-3 px-0 py-4 mb-8 text-xl text-primary-600 hover:text-primary-700 transition-colors"
+        >
+          <span className="text-2xl">←</span>
+          Return to Profile
+        </button>
+        
         <h1 className="text-4xl font-bold text-primary-700 mb-6">Your Orders</h1>
         <div className="overflow-x-auto">
           <table className="table-auto w-full bg-white shadow-lg rounded-lg text-lg">
