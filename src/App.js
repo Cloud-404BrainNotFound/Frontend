@@ -11,6 +11,8 @@ import StringingOrder from './components/StringingOrder';
 import ProfilePage from './components/ProfilePage';
 import ViewOrders from './components/ViewOrders';
 import WriteReview from './components/WriteReview';
+import ViewReview from './components/ViewReview';
+import AboutUs from './components/AboutUs';
 
 const App = () => {
   const orders = [
@@ -75,16 +77,6 @@ const App = () => {
     <AuthProvider>
       <Router>
         <div className="App">
-          <nav className="bg-base-100">
-            <ul className="menu menu-horizontal px-1">
-              <li><Link to="/">Landing Page</Link></li>
-              <li><Link to="/profile">Profile</Link></li>
-              <li><Link to="/orders">Orders</Link></li>
-              <li><Link to="/about">About</Link></li>
-              <li><Link to="/login">Login</Link></li>
-            </ul>
-          </nav>
-
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
@@ -101,10 +93,11 @@ const App = () => {
               path="/write-review/:orderId"
               element={<WriteReview />}
             />
-            <Route path="/about" element={<About />} />
+            <Route path="/about" element={<AboutUs />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/payment-summary" element={<PaymentSummary />} />
             <Route path="/stringing-order" element={<StringingOrder />} />
+            <Route path="/view-review/:orderId" element={<ViewReview />} />
             <Route path="*" element={<Navigate to="/login" />} />
           </Routes>
         </div>

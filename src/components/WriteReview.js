@@ -117,50 +117,72 @@ const WriteReview = () => {
 
   return (
     <div className="min-h-screen bg-neutral-50 p-8">
-      <div className="container mx-auto max-w-lg bg-white shadow-lg rounded-lg p-6">
-        <h1 className="text-2xl font-bold text-primary-700 mb-4">Write a Review</h1>
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold text-neutral-800 mb-2">Rate your experience:</h2>
-          <div className="flex space-x-2">
+      <div className="container mx-auto max-w-3xl bg-white shadow-lg rounded-lg p-8">
+        <h1 className="text-3xl font-bold text-primary-700 mb-6">Write a Review</h1>
+        
+        {/* Order Details Section */}
+        <div className="mb-8 p-6 bg-neutral-50 rounded-lg">
+          <h2 className="text-xl font-semibold text-neutral-800 mb-4">Order Information</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <p className="text-lg text-neutral-600">Sport:</p>
+            <p className="text-lg text-neutral-800">{order?.sport || 'N/A'}</p>
+            <p className="text-lg text-neutral-600">Racket:</p>
+            <p className="text-lg text-neutral-800">{order?.racket_model || 'N/A'}</p>
+            <p className="text-lg text-neutral-600">String:</p>
+            <p className="text-lg text-neutral-800">{order?.string || 'N/A'}</p>
+            <p className="text-lg text-neutral-600">Tension:</p>
+            <p className="text-lg text-neutral-800">{order?.tension || 'N/A'}</p>
+          </div>
+        </div>
+
+        {/* Rating Section */}
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-neutral-800 mb-4">Rating:</h2>
+          <div className="flex space-x-3">
             {[...Array(5)].map((_, index) => (
               <button
                 key={index}
                 type="button"
                 onClick={() => handleStarClick(index)}
-                className={`text-2xl ${index < rating ? 'text-yellow-400' : 'text-neutral-300'}`}
+                className={`text-4xl ${index < rating ? 'text-yellow-400' : 'text-neutral-300'}`}
               >
                 ★
               </button>
             ))}
           </div>
         </div>
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold text-neutral-800 mb-2">Your review:</h2>
+
+        {/* Review Content */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-neutral-800 mb-4">Review:</h2>
           <textarea
             value={review}
             onChange={(e) => setReview(e.target.value)}
             rows={4}
-            className="w-full border border-neutral-300 rounded-lg p-2 text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-full p-6 bg-neutral-50 rounded-lg text-lg text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
             placeholder="Share your experience..."
           />
         </div>
-        <div className="flex justify-end space-x-4">
+
+        {/* Buttons */}
+        <div className="flex justify-end space-x-6">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="px-4 py-2 bg-neutral-200 text-neutral-800 rounded hover:bg-neutral-300"
+            className="px-6 py-3 text-lg bg-neutral-200 text-neutral-800 rounded hover:bg-neutral-300"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleSubmit}
-            className="px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600"
+            className="px-6 py-3 text-lg bg-primary-500 text-white rounded hover:bg-primary-600"
           >
             Submit
           </button>
         </div>
       </div>
+
       {/* Success Modal */}
       <dialog id="success_modal" className="modal modal-bottom sm:modal-middle">
         <div className="modal-box bg-white">

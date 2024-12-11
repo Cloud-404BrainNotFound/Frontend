@@ -53,42 +53,29 @@ const Payment = () => {
       try {
         setPaymentStatus('Processing...');
         
-        // Get user_id from localStorage
         const userId = localStorage.getItem('user_id');
-        console.log('User ID:', userId);
-        // print all local storage
-        console.log('Local Storage:', localStorage);
-        
         if (!userId) {
           throw new Error('User ID not found. Please login again.');
         }
 
-        // Get the pending order data
-        const pendingOrderData = JSON.parse(localStorage.getItem('pendingOrderData'));
-        console.log('Pending Order Data:', pendingOrderData);
-        // Create the order
         const response = await axios.post(
           `http://3.80.156.123:7999/composite/orders/user/${userId}`,
           {
-            sport: pendingOrderData.sport,
-            racket_model: pendingOrderData.racket_model,
-            string: pendingOrderData.string,
-            tension: pendingOrderData.tension,
-            pickup_date: pendingOrderData.pickup_date,
-            notes: pendingOrderData.notes,
-            price: pendingOrderData.price
+            sport: orderData.sport,
+            racket_model: orderData.racket_model,
+            string: orderData.string,
+            tension: orderData.tension,
+            pickup_date: orderData.pickup_date,
+            notes: orderData.notes,
+            price: orderData.price
           }
         );
 
         console.log('Order created successfully:', response);
-        localStorage.removeItem('pendingOrderData'); // Clean up
         
         setPaymentStatus('Payment Successful');
-        
-        // Show success modal
         document.getElementById('success_modal').showModal();
         
-        // Navigate to orders page after 3 seconds
         setTimeout(() => {
           navigate('/orders');
         }, 2000);

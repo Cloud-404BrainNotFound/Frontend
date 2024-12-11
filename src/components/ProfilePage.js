@@ -34,6 +34,9 @@ const ProfilePage = () => {
         const data = await response.json();
         
         const ordersList = data.orders;
+        console.log('API Response - All Orders:', data);
+        console.log('Orders List:', ordersList);
+        
         setOrders(ordersList);
         
         const completedCount = ordersList.filter(order => order.order_status === 'strung').length;
@@ -89,14 +92,6 @@ const ProfilePage = () => {
               View Orders
             </Link>
           </div>
-
-          {/* Profile Settings */}
-          <Link
-            to="/profile-settings"
-            className="block w-full text-center py-2 px-4 bg-secondary-500 text-white font-semibold rounded hover:bg-secondary-600"
-          >
-            Edit Profile Settings
-          </Link>
         </div>
 
         {/* Stats Overview */}
