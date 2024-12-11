@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useLocation } from 'react-router-dom';
 
 const Payment = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const {
     orderData,
     onPaymentSuccess
@@ -28,7 +30,7 @@ const Payment = () => {
     today.getMonth() === dateObj.getMonth() &&
     today.getDate() === dateObj.getDate();
 
-  const totalPrice = isSameDay ? selectedStringPrice + 5 : selectedStringPrice;
+  const totalPrice = selectedStringPrice;
 
   // Payment states
   // Payment Details Limitation
@@ -48,13 +50,53 @@ const Payment = () => {
       expiryMonth && expiryYear && cvc.length === 3;
 
     if (isValidPayment) {
-      setPaymentStatus('Payment Successful');
-      alert('Payment Successful!');
+      try {
+        setPaymentStatus('Processing...');
+        
+        // Get user_id from localStorage
+        const userId = localStorage.getItem('user_id');
+        console.log('User ID:', userId);
+        // print all local storage
+        console.log('Local Storage:', localStorage);
+        
+        if (!userId) {
+          throw new Error('User ID not found. Please login again.');
+        }
 
-      if (typeof onPaymentSuccess === 'function') {
-        await onPaymentSuccess(orderData);
-      } else {
-        console.warn('onPaymentSuccess is not provided or is not a function.');
+        // Get the pending order data
+        const pendingOrderData = JSON.parse(localStorage.getItem('pendingOrderData'));
+        console.log('Pending Order Data:', pendingOrderData);
+        // Create the order
+        const response = await axios.post(
+          `http://3.80.156.123:7999/composite/orders/user/${userId}`,
+          {
+            sport: pendingOrderData.sport,
+            racket_model: pendingOrderData.racket_model,
+            string: pendingOrderData.string,
+            tension: pendingOrderData.tension,
+            pickup_date: pendingOrderData.pickup_date,
+            notes: pendingOrderData.notes,
+            price: pendingOrderData.price
+          }
+        );
+
+        console.log('Order created successfully:', response);
+        localStorage.removeItem('pendingOrderData'); // Clean up
+        
+        setPaymentStatus('Payment Successful');
+        
+        // Show success modal
+        document.getElementById('success_modal').showModal();
+        
+        // Navigate to orders page after 3 seconds
+        setTimeout(() => {
+          navigate('/orders');
+        }, 2000);
+        
+      } catch (err) {
+        console.error('Error processing order:', err);
+        setPaymentStatus('Payment Failed');
+        alert(err.message || 'Failed to process order. Please try again.');
       }
     } else {
       setPaymentStatus('Payment Failed');
@@ -187,6 +229,22 @@ const Payment = () => {
           )}
         </div>
       </div>
+
+      {/* Success Modal */}
+      <dialog id="success_modal" className="modal modal-bottom sm:modal-middle">
+        <div className="modal-box bg-white">
+          <div className="flex flex-col items-center justify-center">
+            <div className="mb-4 text-7xl">✅</div>
+            <h3 className="font-bold text-2xl mb-4 text-primary-800">Payment Successful!</h3>
+            <p className="text-lg mb-2">Your order has been received</p>
+            <p className="text-sm text-gray-600 mb-4">Redirecting to orders page...</p>
+            <div className="loading loading-spinner loading-md text-primary"></div>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
     </div>
   );
 };

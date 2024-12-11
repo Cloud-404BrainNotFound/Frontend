@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
@@ -11,70 +11,42 @@ const StringingOrder = () => {
   const [tension, setTension] = useState('');
   const [notes, setNotes] = useState('');
   const [pickupDate, setPickupDate] = useState(null);
+  const [availableOptions, setAvailableOptions] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   const navigate = useNavigate();
 
-  const sportsOptions = [
-    {
-      name: 'Tennis',
-      emoji: '🎾',
-      strings: [
-        { name: 'Wilson Synthetic Gut', price: 20 },
-        { name: 'Prince Synthetic Gut', price: 22 },
-        { name: 'Gamma Synthetic Gut', price: 18 },
-        { name: 'Wilson NXT', price: 30 },
-        { name: 'Babolat Xcel', price: 35 },
-        { name: 'Babolat VS Natural Gut', price: 40 },
-        { name: 'Wilson Natural Gut', price: 45 },
-        { name: 'Pacific Natural Gut', price: 50 },
-        { name: 'Yonex Poly Tour Pro', price: 30 },
-        { name: 'Babolat RPM Blast', price: 28 },
-        { name: 'Luxilon ALU Power', price: 32 }
-      ]
-    },
-    {
-      name: 'Badminton',
-      emoji: '🏸',
-      strings: [
-        { name: 'Exbolt 63', price: 15 },
-        { name: 'Exbolt 65', price: 16 },
-        { name: 'Exbolt 68', price: 17 },
-        { name: 'BG65', price: 18 },
-        { name: 'BG65Ti', price: 19 },
-        { name: 'BG66', price: 20 },
-        { name: 'BG80', price: 21 },
-        { name: 'BG80P', price: 22 },
-        { name: 'BG85', price: 23 },
-        { name: 'Nanogy95', price: 25 },
-        { name: 'Nanogy98', price: 27 },
-        { name: 'Nanogy99', price: 29 }
-      ]
-    },
-    {
-      name: 'Squash',
-      emoji: '⚫️',
-      strings: [
-        { name: 'Tecnifibre 305 Synthetic Gut', price: 20 },
-        { name: 'Wilson NXT', price: 25 },
-        { name: 'Ashaway Synthetic Gut', price: 22 },
-        { name: 'Head Velocity', price: 23 },
-        { name: 'Tecnifibre Multifeel', price: 24 },
-        { name: 'Ashaway SuperNick XL', price: 26 },
-        { name: 'Tecnifibre 305', price: 27 }
-      ]
-    },
-  ];
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const response = await axios.get('http://3.80.156.123:7999/composite/available-options');
+        setAvailableOptions(response.data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching options:', error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchOptions();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    const selectedSport = availableOptions?.sports.find(s => s.name === sport);
+    const selectedString = selectedSport?.strings.find(s => s.name === string);
+    const selectedRacket = selectedSport?.rackets.find(r => r.name === racketModel);
+    
+    const basePrice = availableOptions?.price_info.base_price || 0;
+    const stringPrice = selectedString?.price || 0;
+    const racketPrice = selectedRacket?.price || 0;
+    
+    const isSameDay = pickupDate && new Date().toDateString() === pickupDate.toDateString();
+    const sameDayExtra = isSameDay ? (availableOptions?.price_info.same_day_pickup_extra || 0) : 0;
+    
+    const totalPrice = basePrice + stringPrice + racketPrice + sameDayExtra;
 
-    const selectedString = sportsOptions
-      .find(s => s.name === sport)
-      ?.strings.find(s => s.name === string);
-      
-    let selectedStringPrice = selectedString ? selectedString.price : 0;
-  
     const formattedPickupDate = pickupDate ? pickupDate.toISOString() : null;
 
     const orderData = {
@@ -84,41 +56,37 @@ const StringingOrder = () => {
       tension,
       notes,
       pickup_date: formattedPickupDate,
-      price: selectedStringPrice,
+      price: totalPrice,
     };
 
-    console.log(`Submitting order with data:`, orderData);
-  
-    try {
-      const response = await axios.post('http://localhost:8080/api/orders/order_stringing', orderData);
-      
-      console.log('Server response:', response);
+    // Store order data in localStorage
+    localStorage.setItem('pendingOrderData', JSON.stringify(orderData));
 
-      if (response.status === 200 || response.status === 201) {
-        navigate('/payment-summary', {
-          state: {
-            orderData,
-          },
-        });
-      } else {
-        console.error('Unexpected response status:', response.status);
-        alert('Error submitting order. Please try again.');
+    navigate('/payment-summary', {
+      state: {
+        orderData
       }
-    } catch (err) {
-      console.error('Error details:', {
-        message: err.message,
-        response: err.response?.data,
-        status: err.response?.status,
-        data: err.response?.data
-      });
-      const errorMessage = err.response?.data?.detail || 
-                         err.response?.data?.message || 
-                         'An error occurred while processing your order. Please try again.';
-      
-      alert(errorMessage);
-    }
+    });
   };
   
+  const getSportEmoji = (sportName) => {
+    switch (sportName) {
+      case 'Tennis':
+        return '🎾';
+      case 'Badminton':
+        return '🏸';
+      case 'Squash':
+        return '⚫️';
+      default:
+        return '';
+    }
+  };
+
+  if (isLoading) {
+    return <div className="min-h-screen bg-neutral-100 flex items-center justify-center">
+      <span className="loading loading-spinner loading-lg"></span>
+    </div>;
+  }
 
   return (
     <div className="min-h-screen bg-neutral-100 flex items-center justify-center">
@@ -129,53 +97,57 @@ const StringingOrder = () => {
           <div className="mb-4">
             <h3 className="block text-primary-700 text-sm font-semibold mb-2">Sport</h3>
             <div className="flex justify-center space-x-2">
-              {sportsOptions.map(({ name, emoji }) => (
+              {availableOptions?.sports.map(({ name }) => (
                 <button
                   key={name}
                   type="button"
                   className={`btn ${sport === name ? 'btn-primary' : 'btn-outline'} p-2`}
                   onClick={() => {
                     setSport(name);
-                    setString(''); // Reset string selection when sport changes
+                    setString('');
+                    setRacketModel('');
                   }}
                 >
-                  {emoji} {name}
+                  {getSportEmoji(name)} {name}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Racket Model */}
+          {/* Racket Model - Changed to dropdown */}
           <div className="mb-4">
             <label className="block text-primary-700 text-sm font-semibold mb-2">Racket Model</label>
-            <input
-              type="text"
+            <select
               value={racketModel}
               onChange={(e) => setRacketModel(e.target.value)}
-              placeholder="Enter racket model"
               className="input input-bordered input-primary w-full"
               required
-            />
+            >
+              <option value="">Select a racket</option>
+              {sport && availableOptions?.sports
+                .find(s => s.name === sport)
+                ?.rackets.map(({ name }) => (
+                  <option key={name} value={name}>{name}</option>
+                ))}
+            </select>
           </div>
 
           {/* String Selection */}
           <div className="mb-4">
             <label className="block text-primary-700 text-sm font-semibold mb-2">String</label>
-            <div className="relative">
-              <select
-                value={string}
-                onChange={(e) => setString(e.target.value)}
-                className="input input-bordered input-primary w-full rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                required
-              >
-                <option value="">Select a string</option>
-                {sport && sportsOptions.find(s => s.name === sport).strings.map(({ name }) => (
-                  <option key={name} value={name}>
-                    {name}
-                  </option>
+            <select
+              value={string}
+              onChange={(e) => setString(e.target.value)}
+              className="input input-bordered input-primary w-full"
+              required
+            >
+              <option value="">Select a string</option>
+              {sport && availableOptions?.sports
+                .find(s => s.name === sport)
+                ?.strings.map(({ name }) => (
+                  <option key={name} value={name}>{name}</option>
                 ))}
-              </select>
-            </div>
+            </select>
           </div>
 
           {/* Tension */}

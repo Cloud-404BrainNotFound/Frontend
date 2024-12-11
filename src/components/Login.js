@@ -60,11 +60,9 @@ const Login = () => {
   const handleGoogleResponse = async (response) => {
     try {
       setLoading(true);
-      console.log("Google response:", response); 
-      console.log("Google token:", response.credential); 
       setError({ email: '', password: '', general: '' });
 
-      const resp = await fetch('http://localhost:8080/api/users/login/google', {
+      const resp = await fetch('http://127.0.0.1:8080/api/users/login/google', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,21 +71,26 @@ const Login = () => {
           google_token: response.credential
         })
       });
-      console.log("Response status:", resp.status);
+
       const data = await resp.json();
-      console.log("Response data:", data);
+      console.log('Token received:', data.access_token);
 
       if (!resp.ok) {
         throw new Error(data.detail || 'Login failed');
       }
 
-      if (data.message === "Login successful") {
-        login(data.access_token);
-        if (location.state?.from?.pathname) {
-          navigate(location.state.from.pathname);
-        } else {
-          alert('jumping to string order page.')
-          navigate('/stringing-order');
+      if (data.message === "Login successful" && data.access_token) {
+        const token = String(data.access_token);
+        login(token);
+        localStorage.setItem('user_id', data.user_id);
+        
+        try {
+          await fetchUserDetails(data.user_id, token);
+          console.log('localStorage after Google login:', { ...localStorage });
+          navigate('/profile', { replace: true });
+        } catch (error) {
+          console.error('Error fetching user details:', error);
+          navigate('/profile', { replace: true });
         }
       }
     } catch (error) {
@@ -136,17 +139,29 @@ const Login = () => {
         
         const data = await response.json();
 
+        if (!response.ok) {
+          throw new Error(data.detail || 'Login failed');
+        }
+
         if (data.message === "Login successful") {
-          login(data.access_token);
-          const decoded = jwtDecode(data.access_token);
-          if (location.state?.from?.pathname) {
-            navigate(location.state.from.pathname);
-            } else {
-            alert('jumping to string order page.')
-            navigate('/stringing-order');
-            }
+          const token = String(data.access_token).trim();
+          console.log('Token received:', token); // Debug log
+          
+          login(token);
+          localStorage.setItem('user_id', data.user_id);
+          
+          try {
+            await fetchUserDetails(data.user_id, token);
+            console.log('localStorage after email login:', { ...localStorage });
+          } catch (error) {
+            console.error('Error fetching user details:', error);
+            setError({ general: 'Failed to fetch user details' });
+            return;
           }
-        } catch (error) {
+          
+          navigate('/profile', { replace: true });
+        }
+      } catch (error) {
         setError({ 
           email: '', 
           password: '', 
@@ -158,10 +173,55 @@ const Login = () => {
     }
   };
 
+  const fetchUserDetails = async (userId, token) => {
+    if (!userId || !token) {
+      console.error('Missing userId or token:', { userId, token });
+      throw new Error('Missing userId or token');
+    }
+
+    const headers = {
+      'Authorization': `Bearer ${String(token).trim()}`,
+      'Accept': 'application/json'
+    };
+    
+    try {
+      const emailResponse = await fetch(`http://localhost:8080/api/users/${userId}/email`, {
+        headers: headers
+      });
+      
+      if (!emailResponse.ok) {
+        const errorData = await emailResponse.text();
+        console.error('Server response:', errorData);
+        throw new Error(`Email fetch failed: ${emailResponse.status} - ${errorData}`);
+      }
+      
+      const emailData = await emailResponse.json();
+      console.log('Email data received:', emailData);
+      
+      if (!emailData.email) {
+        throw new Error('Email is undefined in response');
+      }
+      
+      localStorage.setItem('email', emailData.email);
+      localStorage.setItem('user_id',emailData. user_id);
+      localStorage.setItem('username', emailData.username);
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+      throw error;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-neutral-100 flex items-center justify-center">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-3xl font-bold mb-6 text-center text-primary-800">Log in to your Account</h2>
+        <div className="flex justify-center mb-6">
+          <img 
+            src="/img/sslogo.png"
+            alt="SwingSwift Logo"
+            className="h-20"
+          />
+        </div>
+        <h2 className="text-3xl font-bold mb-6 text-center text-primary-800">Login to your Account</h2>
         
         {error.general && (
           <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
@@ -191,14 +251,7 @@ const Login = () => {
           <div className="flex justify-between items-center"> 
             <label className="block text-primary-700 text-sm font-semibold mb-2">
               Password
-            </label>
-            <Link 
-              to="/forgotpassword" 
-              className="text-black text-sm underline font-bold"
-              tabIndex="-1"
-            >
-              Forgot your password?
-            </Link>
+            </label> 
           </div>
           <input
             type="password"
